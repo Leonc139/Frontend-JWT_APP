@@ -6,24 +6,29 @@ const EditUser = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confPassword, setConfPassword] = useState("");
+  const [msg, setMsg] = useState("");
   const navigate = useNavigate();
   const { id } = useParams();
 
   useEffect(() => {
     getUserById();
-  }, []);
+  }, [id]);
 
   const updateUser = async (e) => {
     e.preventDefault();
     try {
       await axios.patch(`http://localhost:5000/users/${id}`, {
-        name,
-        email,
-        password,
+        name: name,
+        email: email,
+        password: password,
+        confPassword: confPassword,
       });
       navigate("/dashboard");
     } catch (error) {
-      console.log(error);
+      if (error.response) {
+        setMsg(error.response.data.msg);
+      }
     }
   };
 
@@ -31,13 +36,13 @@ const EditUser = () => {
     const response = await axios.get(`http://localhost:5000/users/${id}`);
     setName(response.data.name);
     setEmail(response.data.email);
-    setPassword(response.data.password);
   };
 
   return (
     <div className="columns mt-5 is-centered">
       <div className="column is-half">
         <form onSubmit={updateUser}>
+          <p className="has-text-centered">{msg}</p>
           <div className="field">
             <label className="label">Name</label>
             <div className="control">
@@ -71,6 +76,18 @@ const EditUser = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="*****"
+              />
+            </div>
+          </div>
+          <div className="field">
+            <label className="label">Confirm Password</label>
+            <div className="control">
+              <input
+                type="password"
+                className="input"
+                value={confPassword}
+                onChange={(e) => setConfPassword(e.target.value)}
+                placeholder="******"
               />
             </div>
           </div>
